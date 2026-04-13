@@ -1,77 +1,83 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Search, MoreVertical, User } from 'lucide-react'
+import { useState, useEffect } from "react";
+import { Search, MoreVertical, User } from "lucide-react";
 
 interface Student {
-  _id: string
-  firstName: string
-  lastName: string
-  fatherName: string
-  fatherMobile: string
-  hobbies?: string[]
-  gender?: string
-  createdAt?: string
+  _id: string;
+  studentName: string;
+  parentName: string;
+  callingNumber: string;
+  hobbies?: string[];
+  gender?: string;
+  createdAt?: string;
 }
 
 interface PaginationInfo {
-  total: number
-  page: number
-  limit: number
-  pages: number
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
 }
 
 export default function StudentsPage() {
-  const [students, setStudents] = useState<Student[]>([])
-  const [loading, setLoading] = useState(false)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [page, setPage] = useState(1)
-  const [pagination, setPagination] = useState<PaginationInfo | null>(null)
-  const [filter, setFilter] = useState('Name')
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
+  const [filter, setFilter] = useState("Name");
 
   useEffect(() => {
-    fetchStudents()
-  }, [searchTerm, page])
+    fetchStudents();
+  }, [searchTerm, page]);
 
   const fetchStudents = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       const params = new URLSearchParams({
         search: searchTerm,
         page: page.toString(),
-        limit: '10',
-      })
+        limit: "10",
+      });
 
-      const response = await fetch(`/api/students?${params}`)
-      const data = await response.json()
+      const response = await fetch(`/api/students?${params}`);
+
+      if (!response.ok) {
+        throw new Error("API failed");
+      }
+
+      const data = await response.json();
 
       if (data.success) {
-        setStudents(data.students)
-        setPagination(data.pagination)
+        setStudents(data.students);
+        setPagination(data.pagination);
       }
     } catch (error) {
-      console.error('[v0] Failed to fetch students:', error)
+      console.error("[v0] Failed to fetch students:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleSearch = (value: string) => {
-    setSearchTerm(value)
-    setPage(1)
-  }
+    setSearchTerm(value);
+    setPage(1);
+  };
 
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Decorative circles */}
-      <div className="circle-1" style={{ top: '-200px', left: '-200px' }} />
-      <div className="circle-2" style={{ bottom: '-100px', right: '-150px' }} />
+      <div className="circle-1" style={{ top: "-200px", left: "-200px" }} />
+      <div className="circle-2" style={{ bottom: "-100px", right: "-150px" }} />
 
       <div className="relative z-10">
         {/* Header */}
         <header className="p-6 md:p-8 border-b border-purple-200/30 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold text-purple-900 mb-2">Student List</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-purple-900 mb-2">
+              Student List
+            </h1>
           </div>
         </header>
 
@@ -80,14 +86,14 @@ export default function StudentsPage() {
           {/* Filter Section */}
           <div className="mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex gap-2">
-              {['Name', 'Hobby'].map((filterOption) => (
+              {["Name", "Hobby"].map((filterOption) => (
                 <button
                   key={filterOption}
                   onClick={() => setFilter(filterOption)}
                   className={`px-4 py-2 rounded-full font-medium transition-all ${
                     filter === filterOption
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+                      ? "bg-purple-600 text-white"
+                      : "bg-gray-300 text-gray-700 hover:bg-gray-400"
                   }`}
                 >
                   {filterOption}
@@ -117,7 +123,9 @@ export default function StudentsPage() {
           <div className="space-y-4">
             {loading ? (
               <div className="text-center py-12">
-                <p className="text-purple-700 font-medium">Loading students...</p>
+                <p className="text-purple-700 font-medium">
+                  Loading students...
+                </p>
               </div>
             ) : students.length === 0 ? (
               <div className="text-center py-12">
@@ -130,7 +138,9 @@ export default function StudentsPage() {
                   className="bg-white rounded-3xl shadow-md border border-purple-100 p-6 flex items-center gap-4 hover:shadow-lg transition-shadow"
                 >
                   {/* Number */}
-                  <div className="text-xl font-bold text-purple-900 min-w-8">{index + 1}.</div>
+                  <div className="text-xl font-bold text-purple-900 min-w-8">
+                    {index + 1}.
+                  </div>
 
                   {/* Avatar */}
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center flex-shrink-0">
@@ -141,11 +151,15 @@ export default function StudentsPage() {
                   <div className="flex-1">
                     <div className="flex items-baseline gap-2">
                       <h3 className="text-lg font-bold text-purple-900">
-                        {student.firstName} {student.lastName}
+                        {student.studentName}
                       </h3>
-                      <p className="text-sm text-gray-600">{student.fatherMobile}</p>
+                      <p className="text-sm text-gray-600">
+                        {student.callingNumber}
+                      </p>
                     </div>
-                    <p className="text-sm text-gray-600">Father: {student.fatherName}</p>
+                    <p className="text-sm text-gray-600">
+                      Parent: {student.parentName}
+                    </p>
                   </div>
 
                   {/* Hobbies */}
@@ -198,19 +212,21 @@ export default function StudentsPage() {
                 Previous
               </button>
               <div className="flex items-center gap-2">
-                {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => setPage(p)}
-                    className={`px-3 py-2 rounded-lg font-medium transition-colors ${
-                      p === page
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-purple-100 text-purple-900 hover:bg-purple-200'
-                    }`}
-                  >
-                    {p}
-                  </button>
-                ))}
+                {Array.from({ length: pagination.pages }, (_, i) => i + 1).map(
+                  (p) => (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                        p === page
+                          ? "bg-purple-600 text-white"
+                          : "bg-purple-100 text-purple-900 hover:bg-purple-200"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
               </div>
               <button
                 onClick={() => setPage(Math.min(pagination.pages, page + 1))}
@@ -224,5 +240,5 @@ export default function StudentsPage() {
         </main>
       </div>
     </div>
-  )
+  );
 }
