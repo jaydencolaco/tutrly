@@ -152,7 +152,7 @@ export default function UploadPage() {
         <header className="p-6 md:p-8 border-b border-purple-200/30 backdrop-blur-sm">
           <div className="max-w-6xl mx-auto flex items-center justify-between">
             <h1 className="text-3xl md:text-4xl font-bold text-purple-900 italic font-sans">
-              TUTRLY
+              Tutrly
             </h1>
             <p className="text-purple-700 font-medium hidden md:block">Student Data Management</p>
           </div>
