@@ -9,6 +9,9 @@ import { NextRequest, NextResponse } from 'next/server'
  * 2. Parse and validate student data
  * 3. Upsert students to MongoDB
  * 
+ * The request is sent to Python backend asynchronously (non-blocking).
+ * The endpoint returns immediately while Python processes in the background.
+ * 
  * Expected Request Body:
  * {
  *   pathname: string (path to file in Vercel Blob)
@@ -30,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     console.log('[v0] Processing file:', { pathname, filename })
 
-    // Call your Python backend
+    // Get Python backend URL
     const pythonBackendUrl = process.env.PYTHON_BACKEND_URL
     
     if (!pythonBackendUrl) {
@@ -38,53 +41,42 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'Backend processing not configured',
-          message: 'Python backend URL is not set',
+          message: 'Python backend URL is not set in environment variables',
         },
         { status: 500 }
       )
     }
 
-    // Send request to Python backend with the blob pathname
-    const pythonResponse = await fetch(`${pythonBackendUrl}/process-students`, {
+    // Send request to Python backend asynchronously (fire-and-forget)
+    // We don't await this - it runs in the background
+    fetch(`${pythonBackendUrl}/process-students`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.PYTHON_BACKEND_SECRET}`,
+        'Authorization': `Bearer ${process.env.PYTHON_BACKEND_SECRET || ''}`,
       },
       body: JSON.stringify({
         blobPathname: pathname,
         filename: filename,
         blobToken: process.env.BLOB_READ_WRITE_TOKEN,
       }),
-      timeout: 120000, // 2 minute timeout for long-running Python script
+    }).catch((error) => {
+      console.error('[v0] Background processing error:', error)
     })
 
-    if (!pythonResponse.ok) {
-      const errorData = await pythonResponse.json().catch(() => ({}))
-      console.error('[v0] Python backend error:', errorData)
-      return NextResponse.json(
-        {
-          error: 'Student processing failed',
-          details: errorData.error || pythonResponse.statusText,
-        },
-        { status: pythonResponse.status }
-      )
-    }
-
-    const result = await pythonResponse.json()
-
-    console.log('[v0] Processing completed:', result)
+    // Return immediately to frontend
+    console.log('[v0] Processing triggered for:', filename)
 
     return NextResponse.json({
       success: true,
-      message: 'Student data processing started',
-      result: result,
+      message: 'Processing started in background',
+      file: filename,
     })
   } catch (error) {
     console.error('[v0] Process students error:', error)
     return NextResponse.json(
       {
-        error: 'Failed to process students',
+        error: 'Failed to start processing',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }

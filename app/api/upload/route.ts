@@ -20,8 +20,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Upload to Vercel Blob with private access (configured as private store)
+    // addRandomSuffix: true ensures unique filenames if same file is uploaded multiple times
     const blob = await put(file.name, file, {
       access: 'private',
+      addRandomSuffix: true,
     })
 
     return NextResponse.json({
