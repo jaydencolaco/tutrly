@@ -3,12 +3,13 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from 'sonner'
 import './globals.css'
+import { TeacherAuthProvider } from "@/lib/teacher-auth-context";
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'TUTRLY - Mass Upload for All Students',
+  title: 'TUTRLY - Student Bulk Upload',
   description: 'TUTRLY Student Data Management - Upload and process student information securely',
   generator: 'v0.app',
   icons: {
@@ -38,9 +39,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-sans antialiased">
-        {children}
+        <TeacherAuthProvider>
+          {children}
         <Toaster theme="dark" position="bottom-right" />
         {process.env.NODE_ENV === 'production' && <Analytics />}
+        </TeacherAuthProvider>
       </body>
     </html>
   )
