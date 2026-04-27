@@ -16,27 +16,28 @@ export default function TeacherLoginPage() {
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
+  e.preventDefault()
+  setError("")
 
-    if (!phone.trim() || !password.trim()) {
-      setError('Please fill in all fields.')
-      return
-    }
-
-    setLoading(true)
-    // Small artificial delay for UX
-    await new Promise((r) => setTimeout(r, 400))
-    const success = login(phone.trim(), password)
-    setLoading(false)
-
-    if (!success) {
-      setError('Invalid credentials. Please try again.')
-      return
-    }
-
-    router.push('/teacher/dashboard')
+  if (!phone.trim() || !password.trim()) {
+    setError("Please fill in all fields.")
+    return
   }
+
+  setLoading(true)
+
+  const success = await login(phone.trim(), password.trim()) // ✅ FIXED
+
+  setLoading(false)
+
+  if (!success) {
+    setError("Invalid credentials. Please try again.")
+    return
+  }
+
+  // ✅ REDIRECT ONLY AFTER STATE IS SET
+  router.push("/teacher/dashboard")
+}
 
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-4">

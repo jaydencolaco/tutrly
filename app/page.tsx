@@ -3,9 +3,16 @@
 import { useEffect, useState } from "react"
 import { useTeacherAuth } from "@/lib/teacher-auth-context"
 import { supabase } from "@/lib/supabase"
+import Router from "next/router"
 
 export default function DashboardPage() {
   const { teacher } = useTeacherAuth()
+
+useEffect(() => {
+  if (teacher) {
+    Router.push("/teacher/dashboard")
+  }
+}, [teacher])
   const [groups, setGroups] = useState<any[]>([])
 
   useEffect(() => {

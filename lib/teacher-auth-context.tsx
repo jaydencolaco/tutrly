@@ -42,22 +42,47 @@ export function TeacherAuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   // 🔐 LOGIN WITH PASSWORD CHECK
-  const login = async (phone: string, password: string): Promise<boolean> => {
-    const { data, error } = await supabase
-      .from("users")
-      .select("id, name, phone")
-      .eq("phone", phone)
-      .eq("password", password) // ✅ PASSWORD CHECK ADDED
-      .eq("role", "teacher")
-      .single()
+ const login = async (phone: string, password: string): Promise<boolean> => {
+  console.log("LOGIN INPUT:", phone, password)
 
-    if (error || !data) return false
+  const { data, error } = await supabase
+    .from("users")
+    .select("id, name, phone, password, role")
+    .eq("phone", phone.trim())
+    .eq("role", "teacher")
+    .maybeSingle()
 
-    setTeacher(data)
-    localStorage.setItem(SESSION_KEY, data.id)
+  console.log("DB USER:", data)
 
-    return true
+  if (error || !data) {
+    console.error("No user found")
+    return false
   }
+
+  // 🔥 SAFE PASSWORD CHECK
+  const dbPassword = (data.password || "").trim()
+  const inputPassword = password.trim()
+
+  console.log("COMPARE:", dbPassword, inputPassword)
+
+  if (dbPassword !== inputPassword) {
+    console.error("Password mismatch")
+    return false
+  }
+
+  const teacherData = {
+    id: data.id,
+    name: data.name,
+    phone: data.phone,
+  }
+
+  setTeacher(teacherData)
+  localStorage.setItem(SESSION_KEY, data.id)
+
+  console.log("LOGIN SUCCESS")
+
+  return true
+}
 
   // 🚪 LOGOUT
   const logout = () => {
