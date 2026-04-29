@@ -80,7 +80,7 @@ export default function GroupDetailPage() {
     const cleanLink = link.trim();
 
     if (!cleanLink.startsWith("https://")) {
-      alert("Invalid Google Meet link");
+      alert("Invalid Meet link");
       return;
     }
 
